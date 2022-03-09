@@ -1,5 +1,6 @@
 const DatabaseManager = require('./databasemanager');
 const inquirer = require('inquirer');
+const cTable = require('console.table');
 
 const db = new DatabaseManager();
 const confirmCharLength = async (input) => {
@@ -12,8 +13,8 @@ const confirmCharLength = async (input) => {
 const addDepartment = async () => {
     const data = await inquirer.prompt([
         {
-            type: input,
-            name: department_name,
+            type: 'input',
+            name: 'department_name',
             message: 'Department name',
             validate: confirmCharLength
         }
@@ -112,18 +113,22 @@ const mainMenu = async () => {
     ]);
     switch (option.main_options) {
         case 'View all departments':
-            const departments = await db.viewDepartments();
-            console.log(departments);
+            let departments = await db.viewDepartments();
+            console.table(departments[0]);
             break;
         case 'View all roles':
-            console.log(db.viewRoles());
+            const roles = await db.viewRoles();
+            console.table(roles[0]);
             break;
         case 'View all employees':
-            console.log(db.viewEmployees());
+            const employees = await db.viewEmployees();
+            console.table(employees[0]);
             break;
         case 'Add a department':
-            addDepartment();
+            const results = await addDepartment();
             await db.addDepartment(results.department_name);
+            departments = await db.viewDepartments();
+            console.table(departments[0]);
             break;
         case 'Add a role':
             addRole();

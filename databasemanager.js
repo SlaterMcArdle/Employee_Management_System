@@ -1,10 +1,10 @@
-const mysql = require('mysql2');
+const mysql = require('mysql2/promise');
 require('dotenv').config();
 
 class DatabaseManager {
     constructor() {}
-    // get info from database
-    async viewDepartments() {
+
+    async connectToDatabase() {
         const db = await mysql.createConnection(
             {
                 host: process.env.DB_HOST,
@@ -13,32 +13,29 @@ class DatabaseManager {
                 database: process.env.DB_NAME
             }
         );
-        const result = db.execute(`SELECT * FROM department;`);
-        console.log(result);
+        return db;
+    }
+    // get info from database
+    async viewDepartments() {
+        const db = await this.connectToDatabase();
+        const result = await db.query(`SELECT * FROM department;`);
         return result;
     }
-    viewRoles() {
-        this.db.query(`SELECT * FROM roles;`, (err, results) => {  
-            console.log(err);
-            console.log(results);
-            return results;
-        });
+    async viewRoles() {
+        const db = await this.connectToDatabase();
+        const result = await db.query(`SELECT * FROM roles;`);
+        return result;
     }
-    viewEmployees() {
-        this.db.query(`SELECT * FROM employee;`, (err, results) => {
-            return results;
-        });
-    }
-    viewManagers() {
-        this.db.query(`SELECT first_name, last_name FROM employee WHERE role_id=1;`, (err, results) => {
-            return results;
-        });
+    async viewEmployees() {
+        const db = await this.connectToDatabase();
+        const result = await db.query(`SELECT * FROM employee;`);
+        return result;
     }
     // add info to database
-    addDepartment(name) {
-        this.db.query(`INSERT INTO department (name) VALUES (${name});`, (err, results) => {
-            return results;
-        });
+    async addDepartment(name) {
+        db = await this.connectToDatabase();
+        const result = await db.query(`INSERT INTO department (name) VALUES (${name});`);
+        return result;
     }
     addRole(title, salary, department_id) {
         this.db.query(`INSERT INTO roles (title, salary, department_id)
