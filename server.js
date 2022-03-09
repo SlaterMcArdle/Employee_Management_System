@@ -19,8 +19,7 @@ const addDepartment = async () => {
             validate: confirmCharLength
         }
     ]);
-    console.log(data);
-    // return data;
+    return data;
 };
 const addRole = async () => {
     const departments = db.viewDepartments();
@@ -107,7 +106,7 @@ const mainMenu = async () => {
                 'Add a department',
                 'Add a role',
                 'Add an employee',
-                'quit'
+                'Quit'
             ]
         }
     ]);
@@ -127,8 +126,8 @@ const mainMenu = async () => {
         case 'Add a department':
             const results = await addDepartment();
             await db.addDepartment(results.department_name);
-            departments = await db.viewDepartments();
-            console.table(departments[0]);
+            let newDepartments = await db.viewDepartments();
+            console.table(newDepartments[0]);
             break;
         case 'Add a role':
             addRole();
@@ -136,10 +135,11 @@ const mainMenu = async () => {
         case 'Add an employee':
             addEmployee();
             break;
-        case 'quit':
-            return;
+        case 'Quit':
+            process.exit(0);
     }
-}
+    mainMenu();
+};
 mainMenu();
 
 

@@ -33,9 +33,16 @@ class DatabaseManager {
     }
     // add info to database
     async addDepartment(name) {
-        db = await this.connectToDatabase();
-        const result = await db.query(`INSERT INTO department (name) VALUES (${name});`);
-        return result;
+        const db = await this.connectToDatabase();
+        try {
+            let result = await db.execute(`INSERT INTO department (name) 
+                                        VALUES (?);`, [name]);
+            return result;
+        } catch (err) {
+            console.log(err);
+            let result = err;
+            return result;
+        }
     }
     addRole(title, salary, department_id) {
         this.db.query(`INSERT INTO roles (title, salary, department_id)
