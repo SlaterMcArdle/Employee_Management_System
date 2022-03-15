@@ -16,6 +16,7 @@
 
   ## Usage Instructions
   Run npm start from the project directory. The main menu will popup. Select an option and the program will walk you through the rest.
+  View a walkthrough video [here](https://drive.google.com/file/d/1OO0soUVQHe7PpL4YKr0nVmMcFQG9Ggwa/view)
 
   ## Contribution Instructions
   They can add the ability to update and delete elements.
