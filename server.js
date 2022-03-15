@@ -1,9 +1,11 @@
-// "use strict";
 const DatabaseManager = require('./databasemanager');
 const inquirer = require('inquirer');
 const cTable = require('console.table');
 
+// initialize the database manager class
 const db = new DatabaseManager();
+
+// Function to validate inquirer inputs to make sure they fit the database specs
 const confirmCharLength = async (input) => {
     if (input.length > 30 || input.length == 0 || input.length == null || input.length == undefined) {
         return 'Must have between 1 and 30 characters.';
@@ -11,6 +13,8 @@ const confirmCharLength = async (input) => {
         return true;
     }
 };
+
+// inquirer prompt and data manipulation to add a department
 const addDepartment = async () => {
     const data = await inquirer.prompt([
         {
@@ -22,6 +26,8 @@ const addDepartment = async () => {
     ]);
     return data;
 };
+
+// inquirer prompt and data manipulation to add a role
 const addRole = async () => {
     const departments = await db.viewDepartments();
     const options = departments[0].map(department => department.name);
@@ -49,12 +55,14 @@ const addRole = async () => {
     data.department = department_id;
     return data;
 };
+
+// inquirer prompt and data manipulation to add an employee
 const addEmployee = async () => {
     // get the roles info
     const roles = await db.viewRoles();
     const role_options = roles[0].filter((role)=> (role.title == null) ? false : true).map(role => role.title);
-    // const role_options = existing_roles.map(role => role.title);
     const role_ids = roles[0].map(role => role.id);
+    // get the manager info
     const managers = await db.viewManagers();
     const manager_options = managers[0].map(manager => manager.id + ' ' +manager.first_name + ' ' + manager.last_name);
     manager_options.push('None');
@@ -94,6 +102,8 @@ const addEmployee = async () => {
     }
     return(data);
 };
+
+// Main program inquirer menu. This function runs in a loop until the user quits
 const mainMenu = async () => {
     const option = await inquirer.prompt([
         {

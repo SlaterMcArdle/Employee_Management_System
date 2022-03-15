@@ -3,7 +3,7 @@ require('dotenv').config();
 
 class DatabaseManager {
     constructor() {}
-
+    // create  new database connection
     async connectToDatabase() {
         const db = await mysql.createConnection(
             {
@@ -73,25 +73,6 @@ class DatabaseManager {
             return err;
         }
     }
-    // delete info from database
-    deleteDepartment(id) {
-        this.db.query(`DELETE FROM department WHERE id = ${id};`, (err, results) => {
-            return results;
-        });
-    }
-    deleteRole(id) {
-        this.db.query(`DELETE FROM roles WHERE id = ${id};`, (err, results) => {
-            return results;
-        });
-    }
-    deleteEmployee(id) {
-        this.db.query(`DELETE FROM employee WHERE id = ${id};`, (err, results) => {
-            return results;
-        });
-    }
-    // async totalDepartmentBudget(id) {
-    //     await this.db.query(``)
-    // }
 }
 
 module.exports = DatabaseManager;
