@@ -1,3 +1,4 @@
+// "use strict";
 const DatabaseManager = require('./databasemanager');
 const inquirer = require('inquirer');
 const cTable = require('console.table');
@@ -22,9 +23,9 @@ const addDepartment = async () => {
     return data;
 };
 const addRole = async () => {
-    const departments = db.viewDepartments();
-    const options = departments.map(departments.name);
-    const ids = departments.map(departments.id);
+    const departments = await db.viewDepartments();
+    const options = departments[0].map(department => department.name);
+    const ids = departments[0].map(department => department.id);
     const data = await inquirer.prompt([
         {
             type: 'input',
@@ -44,27 +45,21 @@ const addRole = async () => {
             choices: options
         }
     ]);
-    // const department_id = ids[options.indexOf(data.department)];
-    // addRole(data.title, data.salary, department_id);
-    console.log(data);
+    const department_id = ids[options.indexOf(data.department)];
+    data.department = department_id;
+    return data;
 };
 const addEmployee = async () => {
     // get the roles info
-    const roles = db.viewRoles();
-    const role_options = roles.map(roles.title);
-    const role_ids = roles.map(roles.id);
-    // get the role id for manager
-    const manager_role_id = roles.find(role => role.title == 'Manager');
-    // pull the employees and find the managers
-    const employees = db.viewEmployees();
-    const managers = employees.filter(employee => employee.role_id == manager_role_id);
-    const managerNameList = (managers) => {
-        let managerNameList = [];
-        for (const manager in managers) {
-            const managerName = manager.first_name + ' ' + manager.last_name;
-            managerNameList.push(managerName);
-        }
-    };
+    const roles = await db.viewRoles();
+    const role_options = roles[0].filter((role)=> (role.title == null) ? false : true).map(role => role.title);
+    // const role_options = existing_roles.map(role => role.title);
+    const role_ids = roles[0].map(role => role.id);
+    const managers = await db.viewManagers();
+    const manager_options = managers[0].map(manager => manager.id + ' ' +manager.first_name + ' ' + manager.last_name);
+    manager_options.push('None');
+    const manager_ids = managers[0].map(manager => manager.id);
+    
     const data = await inquirer.prompt([
         {
             type: 'input',
@@ -88,11 +83,17 @@ const addEmployee = async () => {
             type: 'list',
             name: 'manager',
             message: 'Select a department',
-            choices: managerNameList
+            choices: manager_options
         }
     ]);
-    console.log(data);
-}
+    data.role = role_ids[role_options.indexOf(data.role)];
+    if (data.manager == 'None') {
+        data.manager = null;
+    } else {
+        data.manager = manager_ids[manager_options.indexOf(data.manager)];
+    }
+    return(data);
+};
 const mainMenu = async () => {
     const option = await inquirer.prompt([
         {
@@ -130,10 +131,16 @@ const mainMenu = async () => {
             console.table(newDepartments[0]);
             break;
         case 'Add a role':
-            addRole();
+            const data = await addRole();
+            await db.addRole(data.title, data.salary, data.department);
+            let newRoles = await db.viewRoles();
+            console.table(newRoles[0]);
             break;
         case 'Add an employee':
-            addEmployee();
+            const newEmployee = await addEmployee();
+            await db.addEmployee(newEmployee.first_name, newEmployee.last_name, newEmployee.role, newEmployee.manager);
+            let newEmployees = await db.viewEmployees();
+            console.table(newEmployees[0]);
             break;
         case 'Quit':
             process.exit(0);
